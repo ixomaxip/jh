@@ -1,0 +1,36 @@
+version: '2.3'
+
+services:
+    ci:
+        build:
+            context: ci
+            args:
+                BASE: $BASE
+        image: $REG/ci/$SRV:$CI
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        env_file:
+            - ci/.env
+        ports:
+            - 8002:8000
+        labels:
+            - "traefik.enable=true"
+            - "traefik.frontend.rule=Host:jupyter.example.com"
+    #   rt:
+#     build:
+#       context: .
+#       args:
+#         CI: $REG/ci/$SRV:$CI
+#     image: $REG/rt/$SRV:$RT    
+#     env_file:
+#       - ./.env
+#     volumes:      
+#       - ./data:/data
+#     labels:
+#       - traefik.enable=true
+#       - traefik.frontend.rule=PathPrefixStrip:/$SRV/$RT/,/$SRV/,/api/audio/
+#     restart: always
+networks:
+  default:
+    external:
+      name: rt_default
