@@ -1,36 +1,27 @@
-version: '2.3'
+version: '3'
 
 services:
-    ci:
-        build:
-            context: ci
-            args:
-                BASE: $BASE
-        image: $REG/ci/$SRV:$CI
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        env_file:
-            - ci/.env
-        ports:
-            - 8002:8000
-        labels:
-            - "traefik.enable=true"
-            - "traefik.frontend.rule=Host:jupyter.example.com"
-    #   rt:
-#     build:
-#       context: .
-#       args:
-#         CI: $REG/ci/$SRV:$CI
-#     image: $REG/rt/$SRV:$RT    
-#     env_file:
-#       - ./.env
-#     volumes:      
-#       - ./data:/data
-#     labels:
-#       - traefik.enable=true
-#       - traefik.frontend.rule=PathPrefixStrip:/$SRV/$RT/,/$SRV/,/api/audio/
-#     restart: always
-networks:
-  default:
-    external:
-      name: rt_default
+  # Configuration for Hub+Proxy
+  jupyterhub:
+    build: jupyterhub
+    container_name: jupyterhub_hub
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOCKER_JUPYTER_IMAGE: jupyterlab_img
+      DOCKER_NETWORK_NAME: rt_default
+      HUB_IP: jupyterhub_hub
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:jupyter.example.com"
+  
+  jupyterlab:
+    build: jupyterlab
+    image: jupyterlab_img
+    command: echo
+
+# volumes:
+#   ...
+
+# networks:
+#   ...
